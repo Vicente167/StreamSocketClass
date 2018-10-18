@@ -1,0 +1,112 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Name_Proyect.model {
+    class SocketClass {
+        private TcpClient socket = new TcpClient();
+        private StreamReader input;
+        private StreamWriter output;
+
+        private String Ip;
+        private Int32 Puerto;
+
+        public SocketClass(HeaderClass header)
+        {
+            Ip = header.Ip;
+            Puerto = header.Puerto;
+
+        }
+
+
+        public Boolean ConectarSocket()
+        {
+            Boolean respuesta;
+
+            try
+            {
+
+                socket.Close();
+                socket = new TcpClient();
+                socket.Connect(Ip, Puerto);
+
+                input = new StreamReader(socket.GetStream());
+                output = new StreamWriter(socket.GetStream());
+
+                respuesta = true;
+            }
+            catch (Exception)
+            {
+
+                respuesta = false;
+            }
+
+            return respuesta;
+        }
+
+
+        public Boolean GetSocketStatus()
+        {
+            return socket.Connected;
+        }
+
+        public Boolean CloseSocket()
+        {
+            Boolean respuesta;
+
+            try
+            {
+
+                socket.Close();
+                socket = new TcpClient();
+                input = null;
+                output = null;
+
+                respuesta = true;
+            }
+            catch (Exception)
+            {
+
+                respuesta = false;
+            }
+
+            return respuesta;
+
+        }
+
+
+        public String Send(String cadena)
+        {
+
+            String msg;
+            String resp;
+
+            try
+            {
+                if (socket.Connected)
+                {
+                    output.WriteLine(cadena);
+                    output.Flush();
+                    msg = input.ReadLine();
+                    resp = msg;
+                }
+                else
+                {
+                    resp = "No hay conexion abierta al socket.";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                resp = "Error del sistema: " + ex.Message.ToString();
+
+            }
+            return resp;
+        }
+
+    }
+}
